@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Trip</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Boating Service</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Select Your Trip</h2>
+            <form action="/customer" method="GET">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+                
+                <label for="time">Time:</label>
+                <select id="time" name="time" required>
+                    <option value="">Select Time</option>
+                    <!-- Options will be populated dynamically -->
+                </select>
+                
+                <label for="route">Route:</label>
+                <select id="route" name="route" required>
+                    <option value="">Select Route</option>
+                    <option value="Route 1">Route 1</option>
+                    <option value="Route 2">Route 2</option>
+                    <option value="Route 3">Route 3</option>
+                </select>
+                
+                <label for="persons">Number of Persons:</label>
+                <input type="number" id="persons" name="persons" min="1" value="1" required>
+                
+                <label for="children_under3">Children Under 3:</label>
+                <input type="number" id="children_under3" name="children_under3" min="0" value="0">
+                
+                <button type="submit">Check Availability</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Boating Service. All rights reserved.</p>
+    </footer>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

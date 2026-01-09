@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Boat Service</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .payment-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 10px 0;
+        }
+        .btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .btn:hover {
+            background: #218838;
+        }
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Complete Your Payment</h1>
+        
+        <div class="payment-info">
+            <h3>Payment Details</h3>
+            <p><strong>Customer:</strong> {{ name }}</p>
+            <p><strong>Email:</strong> {{ email }}</p>
+            <p><strong>Phone:</strong> {{ phone }}</p>
+            <p><strong>Persons:</strong> {{ persons }}</p>
+            <div class="amount">Total: ₹{{ amount / 100 }}</div>
+        </div>
+
+        <button id="payment-button" class="btn" 
+                data-booking-token="{{ booking_token }}"
+                data-order-id="{{ order_id }}"
+                data-amount="{{ amount }}">
+            Pay ₹{{ amount / 100 }} with Razorpay
+        </button>
+
+        <div class="loading" id="loading">
+            <p>Processing payment...</p>
+        </div>
+
+        <p><small>Secure payment powered by Razorpay</small></p>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById('payment-button').addEventListener('click', function() {
+            const button = this;
+            const loading = document.getElementById('loading');
+            
+            button.style.display = 'none';
+            loading.style.display = 'block';
+
+            const options = {
+                "key": "{{ key_id }}",
+                "amount": "{{ amount }}",
+                "currency": "INR",
+                "name": "Boat Service",
+                "description": "Boat Booking Payment",
+                "order_id": "{{ order_id }}",
+                "handler": function (response) {
+                    // Send payment verification to server
+                    fetch('/verify_payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            booking_token: "{{ booking_token }}"
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Close the payment window and redirect parent to success page
+                            window.opener.location.href = '/success?booking_id=' + data.booking_id;
+                            window.close();
+                        } else {
+                            alert('Payment verification failed: ' + (data.error || 'Unknown error'));
+                            button.style.display = 'block';
+                            loading.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Payment verification failed. Please try again.');
+                        button.style.display = 'block';
+                        loading.style.display = 'none';
+                    });
+                },
+                "prefill": {
+                    "name": "{{ name }}",
+                    "email": "{{ email }}",
+                    "contact": "{{ phone }}"
+                },
+                "theme": {
+                    "color": "#007bff"
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                alert('Payment failed: ' + response.error.description);
+                button.style.display = 'block';
+                loading.style.display = 'none';
+            });
+            
+            rzp.open();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amaranth:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+@font-face {
+  font-family: 'LT Highlight';
+  src: url('./assets/fonts/LT Highlight.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-bhitarkanika-green text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 hover:bg-bhitarkanika-light-green hover:shadow-lg transform hover:-translate-y-1;
+  }
+  
+  .btn-secondary {
+    @apply bg-black text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 hover:bg-gray-800 hover:shadow-lg transform hover:-translate-y-1;
+  }
+  
+  .btn-outline {
+    @apply bg-bhitarkanika-light-green text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 hover:bg-bhitarkanika-green hover:shadow-lg transform hover:-translate-y-1;
+  }
+  
+  .section-padding {
+    @apply py-16 px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+}
+

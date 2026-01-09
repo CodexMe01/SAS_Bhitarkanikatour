@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Successful - Boat Service</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 64px;
+            color: #28a745;
+            margin: 20px 0;
+        }
+        .booking-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>Booking Successful!</h1>
+        <p>Thank you for your booking. Your payment has been processed successfully.</p>
+        
+        <div class="booking-details">
+            <h3>Booking Details</h3>
+            <p><strong>Booking ID:</strong> <span id="booking-id">Loading...</span></p>
+            <p><strong>Date:</strong> <span id="booking-date">Loading...</span></p>
+            <p><strong>Time:</strong> <span id="booking-time">Loading...</span></p>
+            <p><strong>Route:</strong> <span id="booking-route">Loading...</span></p>
+            <p><strong>Persons:</strong> <span id="booking-persons">Loading...</span></p>
+            <p><strong>Children under 3:</strong> <span id="booking-children">Loading...</span></p>
+        </div>
+
+        <p>Your PDF ticket has been generated and is ready for download.</p>
+        
+        <a href="#" id="download-ticket" class="btn btn-success">Download Ticket</a>
+        <a href="{{ url_for('index') }}" class="btn">Book Another Trip</a>
+    </div>
+
+    <script>
+        // Get booking ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingId = urlParams.get('booking_id');
+        
+        if (bookingId) {
+            document.getElementById('booking-id').textContent = bookingId;
+            document.getElementById('download-ticket').href = '/ticket/' + bookingId;
+            
+            // Fetch booking details from server
+            fetch(`/api/booking/${bookingId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const booking = data.booking;
+                        document.getElementById('booking-date').textContent = booking.trip_date || 'Loading...';
+                        document.getElementById('booking-time').textContent = booking.trip_time || 'Loading...';
+                        document.getElementById('booking-route').textContent = booking.route || 'Loading...';
+                        document.getElementById('booking-persons').textContent = booking.persons || 'Loading...';
+                        document.getElementById('booking-children').textContent = booking.children_under3 !== undefined ? booking.children_under3 : 'Loading...';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching booking details:', error);
+                    // Keep the loading text if fetch fails
+                });
+        } else {
+            document.getElementById('booking-id').textContent = 'Not available';
+            document.getElementById('download-ticket').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

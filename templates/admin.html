@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Boat Service</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-hover: #3a56d4;
+            --danger-color: #ef476f;
+            --danger-hover: #d6335c;
+            --success-color: #06d6a0;
+            --text-dark: #2b2d42;
+            --text-light: #8d99ae;
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            max-width: 1600px;
+            width: 95%;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--primary-color);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
+
+        .section {
+            background: white;
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 10px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            text-align: center;
+            vertical-align: middle;
+            user-select: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            border-radius: 6px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Filters */
+        .filters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+            background-color: var(--bg-light);
+            padding: 20px;
+            border-radius: 8px;
+            align-items: end;
+        }
+
+        .filter-group {
+            margin: 0;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Status Badges & specific column styles */
+        .price-tag {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1000;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.6);
+            /* Black w/ opacity */
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            /* 15% from the top and centered */
+            padding: 25px;
+            border: none;
+            width: 80%;
+            /* Could be more or less, depending on screen size */
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Checkbox list for print modal */
+        .checkbox-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input {
+            margin-right: 8px;
+            width: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .filters-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Pricing Information -->
+        <div class="section"
+            style="background: linear-gradient(to right, #e8f5e8, #ffffff); border-left: 5px solid #28a745;">
+            <h3 style="margin-top: 0; color: #155724; font-size: 1.1rem;">Current Pricing Model</h3>
+            <p style="margin: 10px 0; color: #155724; font-size: 0.95rem;">
+                <strong>Per-Boat Booking:</strong><br>
+                • Khola → Dangmal: <strong>₹3,500</strong> / boat (max 18)<br>
+                • Jayanagar → Dangmal: <strong>₹4,000</strong> / boat (max 18)<br>
+                <span style="font-size: 0.85rem; opacity: 0.8;">* Children < 3 yrs free</span>
+            </p>
+        </div>
+
+        <header>
+            <h1>Boat Service Admin</h1>
+        </header>
+
+        <main>
+            <!-- Bookings Section -->
+            <section id="bookings-section" class="section">
+                <h2>Bookings Management</h2>
+
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="search-input">Search (ID, Name, Phone, Email)</label>
+                        <input type="text" id="search-input" placeholder="Search bookings..."
+                            onkeyup="filterBookings()">
+                    </div>
+                    <div class="filter-group">
+                        <label for="date-filter">Filter by Date</label>
+                        <input type="date" id="date-filter" onchange="filterBookings()">
+                    </div>
+                    <div class="filter-group">
+                        <label for="route-filter">Filter by Route</label>
+                        <select id="route-filter" onchange="filterBookings()">
+                            <option value="">All Routes</option>
+                            <option value="Khola">From Khola To Dangmal</option>
+                            <option value="Jayanagar">From Jayanagar To Dangmal</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="flex: 0 0 auto; display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                        <button class="btn" onclick="openPrintModal()">Print PDF</button>
+                    </div>
+                </div>
+
+                <div id="bookings-loading" class="loading">Loading bookings...</div>
+                <div class="table-container">
+                    <table id="bookings-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Transaction ID</th>
+                                <th>Customer</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Route</th>
+                                <th>People</th>
+                                <th>Children</th>
+                                <th>Boat Price</th>
+                                <th>ID Proof</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Bookings will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Edit Booking Modal -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Booking</h2>
+            <form id="editBookingForm">
+                <input type="hidden" id="edit-booking-id">
+
+                <div class="form-group">
+                    <label for="edit-customer-name">Customer Name:</label>
+                    <input type="text" id="edit-customer-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-email">Email:</label>
+                    <input type="email" id="edit-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-phone">Phone:</label>
+                    <input type="tel" id="edit-phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-address">Address:</label>
+                    <textarea id="edit-address" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-trip-date">Trip Date:</label>
+                    <input type="date" id="edit-trip-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-trip-time">Trip Time:</label>
+                    <select id="edit-trip-time" required>
+                        <option value="07:00">7:00 AM</option>
+                        <option value="13:30">1:30 PM</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-route">Route:</label>
+                    <select id="edit-route" required>
+                        <option value="Route 1">Route 1</option>
+                        <option value="Route 2">Route 2</option>
+                        <option value="Route 3">Route 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-persons">Number of People (Max 18 per boat):</label>
+                    <input type="number" id="edit-persons" min="1" max="18" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-children">Children under 3:</label>
+                    <input type="number" id="edit-children" min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-amount">Boat Price (₹):</label>
+                    <input type="number" id="edit-amount" min="0" step="0.01" required>
+                    <small style="color: #666; font-size: 12px;">Per boat booking (up to 18 people)</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Print PDF Modal -->
+    <div id="printModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closePrintModal()">&times;</span>
+            <h2>Print Settings</h2>
+            <p>Select columns to include in the PDF:</p>
+
+            <div class="checkbox-list">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-booking-id" value="0">
+                    <label for="col-booking-id">Booking ID</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-customer" value="1" checked>
+                    <label for="col-customer">Customer Name</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-email" value="2">
+                    <label for="col-email">Email</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-phone" value="3" checked>
+                    <label for="col-phone">Phone</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-date" value="4" checked>
+                    <label for="col-date">Date</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-time" value="5" checked>
+                    <label for="col-time">Time</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-route" value="6" checked>
+                    <label for="col-route">Route</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-people" value="7" checked>
+                    <label for="col-people">People</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-children" value="8" checked>
+                    <label for="col-children">Children</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-amount" value="9">
+                    <label for="col-amount">Amount</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="col-created" value="10">
+                    <label for="col-created">Created At</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closePrintModal()">Cancel</button>
+                <button type="button" class="btn" onclick="generatePDF()">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allBookings = [];
+        let currentFilteredBookings = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            loadBookings();
+        });
+
+        async function loadBookings() {
+            try {
+                const response = await fetch('/admin/bookings');
+                const data = await response.json();
+                allBookings = data.bookings;
+                currentFilteredBookings = [...allBookings]; // Initially all are shown
+                displayBookings(allBookings);
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                alert('Error loading bookings');
+            }
+        }
+
+        function filterBookings() {
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            const dateFilter = document.getElementById('date-filter').value;
+            const routeFilter = document.getElementById('route-filter').value;
+
+            currentFilteredBookings = allBookings.filter(booking => {
+                // Booking structure: [id, name, email, phone, date, time, route, persons, children, amount, created, id_proof]
+                // Indices: 0=id, 1=name, 2=email, 3=phone, 4=date, 6=route
+
+                const matchesSearch =
+                    booking[0].toLowerCase().includes(searchText) || // ID
+                    booking[1].toLowerCase().includes(searchText) || // Name
+                    booking[2].toLowerCase().includes(searchText) || // Email
+                    booking[3].toLowerCase().includes(searchText);   // Phone
+
+                const matchesDate = !dateFilter || booking[4] === dateFilter;
+
+                const matchesRoute = !routeFilter || booking[6].includes(routeFilter);
+
+                return matchesSearch && matchesDate && matchesRoute;
+            });
+
+            displayBookings(currentFilteredBookings);
+        }
+
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('date-filter').value = '';
+            document.getElementById('route-filter').value = '';
+            currentFilteredBookings = [...allBookings];
+            displayBookings(allBookings);
+        }
+
+        function displayBookings(bookings) {
+            const tbody = document.querySelector('#bookings-table tbody');
+            tbody.innerHTML = '';
+
+            if (bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="14" style="text-align: center;">No bookings found</td></tr>';
+            } else {
+                bookings.forEach(booking => {
+                    const row = document.createElement('tr');
+                    const idProofButton = booking[11] ?
+                        `<button class="btn btn-sm" onclick="viewIdProof('${booking[0]}')" style="background: #28a745; margin-right: 5px;">View ID</button>` :
+                        '<span style="color: #6c757d;">No ID</span>';
+
+                    row.innerHTML = `
+                        <td>${booking[0]}</td>
+                        <td><small style="font-family: monospace; color: #666;">${booking[12] || 'N/A'}</small></td>
+                        <td>${booking[1]}</td>
+                        <td>${booking[2]}</td>
+                        <td>${booking[3]}</td>
+                        <td>${booking[4]}</td>
+                        <td>${booking[5]}</td>
+                        <td>${booking[6]}</td>
+                        <td>${booking[7]}</td>
+                        <td>${booking[8]}</td>
+                        <td class="price-tag">Rs. ${booking[9] / 100}</td>
+                        <td>${idProofButton}</td>
+                        <td>${new Date(booking[10]).toLocaleString()}</td>
+                        <td>
+                            <button class="btn btn-sm" onclick="editBooking('${booking[0]}')" style="margin-right: 5px;">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteBooking('${booking[0]}')">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            document.getElementById('bookings-loading').style.display = 'none';
+            document.getElementById('bookings-table').style.display = 'table';
+        }
+
+        // Booking management functions
+        async function editBooking(bookingId) {
+            try {
+                // Fetch booking details
+                const response = await fetch(`/api/booking/${bookingId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const booking = data.booking;
+
+                    // Populate the edit form
+                    document.getElementById('edit-booking-id').value = booking.booking_id;
+                    document.getElementById('edit-customer-name').value = booking.customer_name;
+                    document.getElementById('edit-email').value = booking.email;
+                    document.getElementById('edit-phone').value = booking.phone;
+                    document.getElementById('edit-address').value = booking.address || '';
+                    document.getElementById('edit-trip-date').value = booking.trip_date;
+                    document.getElementById('edit-trip-time').value = booking.trip_time;
+                    document.getElementById('edit-route').value = booking.route;
+                    document.getElementById('edit-persons').value = booking.persons;
+                    document.getElementById('edit-children').value = booking.children_under3;
+                    document.getElementById('edit-amount').value = (booking.amount / 100).toFixed(2);
+
+                    // Show the modal
+                    document.getElementById('editModal').style.display = 'block';
+                } else {
+                    alert('Error loading booking details');
+                }
+            } catch (error) {
+                console.error('Error loading booking:', error);
+                alert('Error loading booking details');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Handle edit form submission
+        document.getElementById('editBookingForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const bookingId = document.getElementById('edit-booking-id').value;
+            const formData = {
+                customer_name: document.getElementById('edit-customer-name').value,
+                email: document.getElementById('edit-email').value,
+                phone: document.getElementById('edit-phone').value,
+                address: document.getElementById('edit-address').value,
+                trip_date: document.getElementById('edit-trip-date').value,
+                trip_time: document.getElementById('edit-trip-time').value,
+                route: document.getElementById('edit-route').value,
+                persons: parseInt(document.getElementById('edit-persons').value),
+                children_under3: parseInt(document.getElementById('edit-children').value),
+                amount: Math.round(parseFloat(document.getElementById('edit-amount').value) * 100) // Convert to paise
+            };
+
+            try {
+                const response = await fetch(`/admin/bookings/${bookingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Booking updated successfully!');
+                    closeEditModal();
+                    loadBookings(); // Refresh the bookings list
+                } else {
+                    const errorData = await response.json();
+                    alert('Error updating booking: ' + (errorData.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error updating booking:', error);
+                alert('Error updating booking');
+            }
+        });
+
+        async function deleteBooking(bookingId) {
+            if (confirm(`Are you sure you want to delete booking ${bookingId}? This action cannot be undone.`)) {
+                try {
+                    const response = await fetch(`/admin/bookings/${bookingId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('Booking deleted successfully!');
+                        loadBookings(); // Refresh the bookings list
+                    } else {
+                        alert('Error deleting booking');
+                    }
+                } catch (error) {
+                    console.error('Error deleting booking:', error);
+                    alert('Error deleting booking');
+                }
+            }
+        }
+
+        function viewIdProof(bookingId) {
+            // Open ID proof in a new window/tab
+            window.open(`/admin/id-proof/${bookingId}`, '_blank');
+        }
+
+        // PDF Export Functions
+        function openPrintModal() {
+            document.getElementById('printModal').style.display = 'block';
+        }
+
+        function closePrintModal() {
+            document.getElementById('printModal').style.display = 'none';
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4'); // Landscape, millimeters, A4
+
+            // Get selected columns
+            const checkboxes = document.querySelectorAll('#printModal .checkbox-item input:checked');
+            const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            const headers = Array.from(checkboxes).map(cb => cb.nextElementSibling.innerText);
+
+            if (selectedIndices.length === 0) {
+                alert('Please select at least one column');
+                return;
+            }
+
+            // Prepare data
+            const data = currentFilteredBookings.map(booking => {
+                return selectedIndices.map(index => {
+                    if (index === 9) { // Amount
+                        return 'Rs. ' + (booking[index] / 100);
+                    }
+                    if (index === 10) { // Created At
+                        return new Date(booking[index]).toLocaleDateString();
+                    }
+                    return booking[index];
+                });
+            });
+
+            // Add Title
+            doc.setFontSize(18);
+            doc.text("Boat Service Bookings", 14, 22);
+            doc.setFontSize(11);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+
+            // Generate Table
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 35,
+                styles: { fontSize: 9 },
+                headStyles: { fillColor: [67, 97, 238] }, // Primary color
+            });
+
+            // Save PDF
+            doc.save('bookings-export.pdf');
+            closePrintModal();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Information - Boat Service</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .trip-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .trip-summary h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .price-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Customer Information</h1>
+        
+        <div class="trip-summary">
+            <h3>Trip Details</h3>
+            <p><strong>Date:</strong> {{ date }}</p>
+            <p><strong>Time:</strong> {{ time }}</p>
+            <p><strong>Route:</strong> {{ route }}</p>
+            <p><strong>Persons:</strong> {{ persons }}</p>
+            <p><strong>Children under 3:</strong> {{ children_under3 }}</p>
+        </div>
+
+        <form action="{{ url_for('start_payment') }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="date" value="{{ date }}">
+            <input type="hidden" name="time" value="{{ time }}">
+            <input type="hidden" name="route" value="{{ route }}">
+            <input type="hidden" name="persons" value="{{ persons }}">
+            <input type="hidden" name="children_under3" value="{{ children_under3 }}">
+
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" placeholder="Enter your complete address" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="id_type">ID Type:</label>
+                <select id="id_type" name="id_type" required>
+                    <option value="">Select ID Type</option>
+                    <option value="Aadhar">Aadhar Card</option>
+                    <option value="Passport">Passport</option>
+                    <option value="Driving License">Driving License</option>
+                    <option value="Voter ID">Voter ID</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_file">Upload ID Proof:</label>
+                <input type="file" id="id_file" name="id_file" accept="image/*,.pdf" required>
+                <small>Accepted formats: JPG, PNG, PDF (Max 8MB)</small>
+            </div>
+
+            <div class="price-info">
+                <h4>Total Amount: ₹{{ (persons * 500) }}</h4>
+                <small>₹500 per person (Children under 3 free)</small>
+            </div>
+
+            <button type="submit" class="btn">Proceed to Payment</button>
+        </form>
+    </div>
+</body>
+</html>
