@@ -1,195 +1,109 @@
-# Deployment Guide
+# Deployment Guide: AWS EC2
 
-This guide covers deploying the Boating Service application to production.
+This guide covers deploying the SAS Bhitarkanika Tour application to an AWS EC2 instance (Ubuntu).
 
 ## Prerequisites
 
-- Python 3.8+ installed on your server
-- Domain name (optional but recommended)
-- SSL certificate (Let's Encrypt or Cloudflare)
-- SSL certificate (Let's Encrypt or Cloudflare)
+- AWS Account
+- Domain name (e.g., from Godaddy, Namecheap, etc.)
 - Razorpay account (for payments)
 
-## Option 1: Railway Deployment (Recommended)
+## Step 1: Launch EC2 Instance
 
-### 1. Prepare Your Code
+1.  **Login to AWS Console** and navigate to **EC2**.
+2.  **Launch Instance**:
+    -   **Name**: SAS-Tour-Server
+    -   **AMI**: Ubuntu Server 22.04 LTS (HVM) or 24.04 LTS
+    -   **Instance Type**: t2.micro (Free Tier eligible) or t3.small
+    -   **Key Pair**: Create a new key pair (e.g., `sas-tour-key.pem`) and download it.
+    -   **Network Settings**:
+        -   Create Security Group allowing:
+            -   SSH (Port 22) - RESTRICT TO YOUR IP for security.
+            -   HTTP (Port 80) - Anywhere
+            -   HTTPS (Port 443) - Anywhere
+3.  **Launch** the instance.
 
-1. Push your code to a Git repository (GitHub, GitLab, etc.)
-2. Ensure all files are committed except those in `.gitignore`
+## Step 2: Configure Elastic IP (Optional but Recommended)
 
-### 2. Deploy to Railway
+1.  Go to **Elastic IPs** in EC2 sidebar.
+2.  **Allocate Elastic IP**.
+3.  **Associate Elastic IP** with your running instance.
+    *This ensures your IP doesn't change if you restart the server.*
 
-1. Go to [Railway.app](https://railway.app) and create an account
-2. Click "New Project" → "Deploy from GitHub repo"
-3. Select your repository
-4. Railway will automatically detect it's a Python app
+## Step 3: Connect to Instance
 
-### 3. Configure Environment Variables
-
-In Railway dashboard, go to your project → Variables tab and add:
-
-```env
-FLASK_ENV=production
-SECRET_KEY=your-very-long-random-secret-key
-RAZORPAY_KEY_ID=rzp_live_XXXXXXXX
-RAZORPAY_KEY_SECRET=your_live_secret
-ADMIN_USERNAME=owner
-ADMIN_PASSWORD=your-secure-password
-BASE_URL=https://your-app-name.railway.app
-```
-
-### 4. Custom Domain (Optional)
-
-1. In Railway, go to Settings → Domains
-2. Add your custom domain
-3. Update `BASE_URL` in environment variables
-4. Configure DNS records as instructed
-
-## Option 2: VPS Deployment
-
-### 1. Server Setup
+Open your terminal (PowerShell or Git Bash) and run:
 
 ```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
+# Set permissions for key (if on Linux/Mac/Git Bash)
+chmod 400 "path/to/sas-tour-key.pem"
 
-# Install Python and dependencies
-sudo apt install python3 python3-pip python3-venv nginx -y
-
-# Create application user
-sudo useradd -m -s /bin/bash boatapp
-sudo usermod -aG sudo boatapp
+# Connect
+ssh -i "path/to/sas-tour-key.pem" ubuntu@<YOUR-EC2-PUBLIC-IP>
 ```
 
-### 2. Application Setup
+## Step 4: Server Setup & Deployment
 
-```bash
-# Switch to application user
-sudo su - boatapp
+1.  **Clone the Repository**:
+    ```bash
+    git clone <YOUR_GITHUB_REPO_URL>
+    cd SAS_Bhitarkanikatour
+    ```
+    *(Note: You might need to generate an SSH key on the server and add it to GitHub if using a private repo)*
 
-# Clone your repository
-git clone https://github.com/yourusername/boating-service.git
-cd boating-service
+2.  **Create .env File**:
+    ```bash
+    cp env.example .env
+    nano .env
+    ```
+    *Fill in your RAZORPAY keys, SECRET_KEY, and setting `FLASK_ENV=production`.*
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
+3.  **Run Setup Script**:
+    We have prepared an automated script to install dependencies and configure the server.
+    ```bash
+    sudo bash setup_ec2.sh
+    ```
+    *This script will installing Python, Nginx, setup the virtual environment, and configure the Gunicorn service.*
 
-# Install dependencies
-pip install -r requirements.txt
-pip install gunicorn
+4.  **Verify Nginx Status**:
+    ```bash
+    sudo systemctl status nginx
+    ```
 
-# Create environment file
-cp env.example .env
-nano .env  # Edit with your values
-```
+## Step 5: SSL Setup (HTTPS)
 
-### 3. Gunicorn Setup
+Currently, the setup runs on HTTP. To enable HTTPS:
 
-Create a systemd service file:
+1.  **Point your Domain** to the EC2 Public IP using an A Record in your DNS provider.
+2.  **Run Certbot**:
+    ```bash
+    sudo certbot --nginx -d your-domain.com
+    ```
+3.  **Follow prompts** to redirect HTTP to HTTPS.
 
-```bash
-sudo nano /etc/systemd/system/boatapp.service
-```
+## Troubleshooting
 
-Add this content:
-
-```ini
-[Unit]
-Description=Boating Service Gunicorn
-After=network.target
-
-[Service]
-User=boatapp
-Group=boatapp
-WorkingDirectory=/home/boatapp/boating-service
-Environment="PATH=/home/boatapp/boating-service/venv/bin"
-ExecStart=/home/boatapp/boating-service/venv/bin/gunicorn --workers 3 --bind unix:boatapp.sock -m 007 app:app
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### 4. Nginx Configuration
-
-```bash
-sudo nano /etc/nginx/sites-available/boatapp
-```
-
-Add this configuration:
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://unix:/home/boatapp/boating-service/boatapp.sock;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Enable the site:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/boatapp /etc/nginx/sites-enabled
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-### 5. SSL with Let's Encrypt
-
-```bash
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d your-domain.com
-```
-
-### 6. Start Services
-
-```bash
-sudo systemctl start boatapp
-sudo systemctl enable boatapp
-sudo systemctl restart nginx
-```
-
-## Option 3: Render Deployment
-
-### 1. Prepare Repository
-
-1. Add a `render.yaml` file to your repository:
-
-```yaml
-services:
-  - type: web
-```
-
-### 2. Deploy to Render
-
-1. Go to [Render.com](https://render.com)
-2. Connect your GitHub repository
-3. Create a new Web Service
-4. Configure environment variables in the dashboard
-5. Deploy
+- **Check Logs**:
+    ```bash
+    # Application Logs
+    journalctl -u sas_tour -f
+    
+    # Nginx Logs
+    sudo tail -f /var/log/nginx/error.log
+    ```
+- **Restart App**:
+    ```bash
+    sudo systemctl restart sas_tour
+    ```
 
 ## Environment Variables Reference
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `FLASK_ENV` | Environment mode | Yes |
-| `SECRET_KEY` | Flask secret key | Yes |
-| `RAZORPAY_KEY_ID` | Razorpay public key | Yes |
-| `RAZORPAY_KEY_SECRET` | Razorpay secret key | Yes |
-| `ADMIN_USERNAME` | Admin panel username | Yes |
-| `ADMIN_PASSWORD` | Admin panel password | Yes |
-| `BASE_URL` | Application base URL | Yes |
-
-## Post-Deployment Checklist
-
-- [ ] Test the booking flow end-to-end
-- [ ] Test admin panel access
-- [ ] Verify file uploads work
-- [ ] Test payment integration (use test mode first)
+| Variable | Description |
+|----------|-------------|
+| `FLASK_ENV` | Set to `production` |
+| `SECRET_KEY` | Random string for session security |
+| `RAZORPAY_KEY_ID` | From Razorpay Dashboard |
+| `RAZORPAY_KEY_SECRET` | From Razorpay Dashboard |
+| `ADMIN_USERNAME` | Admin panel login |
+| `ADMIN_PASSWORD` | Admin panel password |
+| `BASE_URL` | `https://your-domain.com` |
