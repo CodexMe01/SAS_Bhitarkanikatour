@@ -355,7 +355,7 @@
                         <thead>
                             <tr>
                                 <th>Booking ID</th>
-                                <th>Transaction ID</th>
+                                <th>Payment Status</th>
                                 <th>Customer</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -582,9 +582,15 @@
                         `<button class="btn btn-sm" onclick="viewIdProof('${booking[0]}')" style="background: #28a745; margin-right: 5px;">View ID</button>` :
                         '<span style="color: #6c757d;">No ID</span>';
 
+                    const paymentId = booking[12] || '';
+                    const isPaid = paymentId.startsWith('pay_');
+                    const statusBadge = isPaid
+                        ? `<span style="background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">PAID</span><br><small style="font-family: monospace; color: #666;">${paymentId}</small>`
+                        : `<span style="background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">UNPAID</span><br><small style="color: #666;">Pay Later</small>`;
+
                     row.innerHTML = `
                         <td>${booking[0]}</td>
-                        <td><small style="font-family: monospace; color: #666;">${booking[12] || 'N/A'}</small></td>
+                        <td>${statusBadge}</td>
                         <td>${booking[1]}</td>
                         <td>${booking[2]}</td>
                         <td>${booking[3]}</td>

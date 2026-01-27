@@ -22,12 +22,12 @@ const Hero = () => {
           </div>
           <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-6 text-xs sm:text-sm md:text-base">
             <a
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=stayandsailbhitarkanika@gmail.com&su=Boat Tour Inquiry&body=Hello, I am interested in booking a boat tour. Please provide more information."
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=jagan@stayandsailbhitarkanika.in&su=Boat Tour Inquiry&body=Hello, I am interested in booking a boat tour. Please provide more information."
               className="font-amaranth hover:text-bhitarkanika-light-green transition-colors cursor-pointer"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Email: stayandsailbhitarkanika@gmail.com
+              Email: jagan@stayandsailbhitarkanika.in
             </a>
             <span className="hidden sm:inline font-amaranth opacity-60">|</span>
             <a

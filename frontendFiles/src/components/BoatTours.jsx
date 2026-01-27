@@ -101,7 +101,7 @@ const BoatTours = () => {
                       setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
                     }}
                   >
-                    Book Now
+                    Book Boat
                   </Link>
                 </div>
               </div>

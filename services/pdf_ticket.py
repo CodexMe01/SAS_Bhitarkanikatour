@@ -30,6 +30,12 @@ def generate_ticket_pdf(ticket_path, booking_id, booking_details):
     # Pricing information
     pdf.cell(200, 10, txt="Pricing:", ln=True)
     pdf.cell(200, 10, txt=f"Boat Price: Rs. {booking_details['amount'] / 100}", ln=True)
+    
+    # Payment Status
+    payment_id = booking_details.get('payment_id', '')
+    status = "Paid" if payment_id and payment_id.startswith("pay_") else "Pay Later / Pending"
+    pdf.cell(200, 10, txt=f"Payment Status: {status}", ln=True)
+
     pdf.cell(200, 10, txt="Note: This is a per-boat booking for up to 18 people", ln=True)
     pdf.cell(200, 10, txt="(excluding children under 3 years old)", ln=True)
 

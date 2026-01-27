@@ -73,13 +73,24 @@ const SuccessPage = () => {
           </h1>
 
           <p className="text-lg text-gray-600 mb-2">
-            Your boat trip has been confirmed
+            {searchParams.get('payment_status') === 'pay_later'
+              ? 'Your booking request has been received'
+              : 'Your boat trip has been confirmed'}
           </p>
 
           {bookingId && (
             <p className="text-sm text-gray-500">
               Booking ID: <span className="font-mono font-semibold">{bookingId}</span>
             </p>
+          )}
+
+          {searchParams.get('payment_status') === 'pay_later' && (
+            <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4 max-w-lg mx-auto">
+              <h3 className="text-yellow-800 font-semibold mb-1">Payment Pending</h3>
+              <p className="text-yellow-700 text-sm">
+                Thank you for your booking! Our team will contact you shortly regarding the payment. Your booking is confirmed.
+              </p>
+            </div>
           )}
         </section>
 

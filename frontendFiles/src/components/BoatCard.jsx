@@ -21,16 +21,16 @@ const BoatCard = ({ title, subtitle, price, features, titleFont, priceFont, imag
           <div className="absolute inset-0 bg-black bg-opacity-20"></div>
         </div>
       )}
-      
+
       <div className="p-6">
-        <h3 
+        <h3
           className="text-2xl font-bold text-bhitarkanika-text mb-2"
           style={{ fontFamily: titleFont }}
         >
           {title}
         </h3>
         <p className="text-gray-600 mb-4">{subtitle}</p>
-        
+
         <div className="space-y-3 mb-6">
           {features.map((feature, index) => (
             <div key={index} className="flex items-center space-x-3">
@@ -41,16 +41,16 @@ const BoatCard = ({ title, subtitle, price, features, titleFont, priceFont, imag
             </div>
           ))}
         </div>
-        
+
         <div className="flex items-center justify-between">
-          <div 
+          <div
             className="text-3xl font-bold text-bhitarkanika-green"
             style={{ fontFamily: priceFont }}
           >
             {price}
           </div>
           <Link to={bookingLink} className="btn-primary">
-            Book Now
+            Book Boat
           </Link>
         </div>
       </div>

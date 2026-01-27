@@ -45,12 +45,12 @@ const Contact = () => {
                     <div>
                       <h4 className="font-semibold text-bhitarkanika-text mb-2 text-lg">Email</h4>
                       <a
-                        href="https://mail.google.com/mail/?view=cm&fs=1&to=stayandsailbhitarkanika@gmail.com&su=Boat Tour Inquiry&body=Hello, I am interested in booking a boat tour. Please provide more information."
+                        href="https://mail.google.com/mail/?view=cm&fs=1&to=jagan@stayandsailbhitarkanika.in&su=Boat Tour Inquiry&body=Hello, I am interested in booking a boat tour. Please provide more information."
                         className="text-bhitarkanika-green hover:text-bhitarkanika-light-green transition-colors cursor-pointer text-sm break-all"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        stayandsailbhitarkanika@gmail.com
+                        jagan@stayandsailbhitarkanika.in
                       </a>
                     </div>
                   </div>

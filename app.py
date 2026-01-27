@@ -118,7 +118,13 @@ def format_time_12h(time_24h):
 
 @app.get('/')
 def index():
-    return send_from_directory('static/dist', 'index.html')
+    try:
+        # Use absolute path to avoid CWD confusion
+        dist_dir = os.path.join(app.root_path, 'static', 'dist')
+        return send_from_directory(dist_dir, 'index.html')
+    except Exception as e:
+        app.logger.error(f"Error serving index: {e}")
+        return f"Error loading frontend: {e}", 500
 
 @app.get('/api/slots')
 def api_slots():
@@ -165,8 +171,12 @@ def start_payment():
             return jsonify({"error": f"Failed to save ID proof: {str(e)}"}), 500
 
         # Compute amount based on route (per boat pricing)
-        persons = int(form['persons'])
-        children = int(form.get('children_under3', 0) or 0)
+        try:
+            persons = int(form['persons'])
+            children = int(form.get('children_under3', 0) or 0)
+        except (ValueError, TypeError):
+             return jsonify({"error": "Invalid number for persons or children"}), 400
+             
         route = form['route']
         
         # Validate maximum capacity (18 people excluding children under 3)
@@ -211,9 +221,103 @@ def start_payment():
             order_id=order['id'], amount=amount,
             name=form['name'], email=form['email'], phone=form['phone'],
             persons=persons, booking_token=booking_token)
+
     except Exception as e:
-        print(f"Payment error: {e}")
-        return jsonify({"error": f"Payment processing failed: {str(e)}"}), 500
+        # Catch any unexpected errors (KeyError, database, etc.)
+        app.logger.error(f"Error in /pay: {str(e)}")
+        return jsonify({"error": f"Internal Server Error: {str(e)}"}), 500
+
+
+
+@app.post('/pay_later')
+def pay_later():
+    try:
+        form = request.form
+        files = request.files
+
+        # Validate required fields
+        required_fields = ['date', 'time', 'route', 'persons', 'name', 'phone', 'email', 'address', 'id_type']
+        for field in required_fields:
+            if not form.get(field):
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # Save ID proof securely
+        id_file = files.get('id_file')
+        if not id_file or id_file.filename == '':
+            return jsonify({"error": "ID proof file is required"}), 400
+            
+        try:
+            id_path = save_id_proof(id_file)
+        except Exception as e:
+            return jsonify({"error": f"Failed to save ID proof: {str(e)}"}), 500
+
+        # Compute amount based on route
+        try:
+            persons = int(form['persons'])
+            children = int(form.get('children_under3', 0) or 0)
+        except (ValueError, TypeError):
+             return jsonify({"error": "Invalid number for persons or children"}), 400
+             
+        route = form['route']
+        if "From Khola To Dangmal" in route:
+            BOAT_PRICE = 3500
+        elif "From Jayanagar To Dangmal" in route:
+            BOAT_PRICE = 4000
+        else:
+            return jsonify({"error": "Invalid route selected"}), 400
+        
+        amount = BOAT_PRICE * 100  # in paise
+        
+        # Validate capacity
+        if persons > 18:
+            return jsonify({"error": "Maximum capacity is 18 people per boat"}), 400
+
+        # Persist booking immediately
+        booking_id = f"B{secrets.token_hex(5).upper()}"
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        payment_id = "PAY_LATER"
+        
+        try:
+            with sqlite3.connect(DB_PATH) as con:
+                cur = con.cursor()
+                cur.execute('''INSERT INTO bookings (booking_id, customer_name, email, phone, address, id_type, id_path,
+                    trip_date, trip_time, route, persons, children_under3, amount, payment_id, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (
+                    booking_id, form['name'], form['email'], form['phone'], form['address'], 
+                    form['id_type'], id_path, form['date'], form['time'], form['route'], 
+                    persons, children, amount, payment_id, now))
+                con.commit()
+        except Exception as e:
+            print(f"Database error: {e}")
+            return jsonify({"error": "Failed to save booking"}), 500
+
+        # Generate ticket
+        try:
+            tickets_dir = os.path.join(app.instance_path, 'tickets')
+            os.makedirs(tickets_dir, exist_ok=True)
+            ticket_path = os.path.join(tickets_dir, f"{booking_id}.pdf")
+            
+            booking_details = {
+                'name': form['name'], 'email': form['email'], 'phone': form['phone'], 'address': form['address'],
+                'date': form['date'], 'time': form['time'], 'route': form['route'],
+                'persons': persons, 'children_under3': children, 'amount': amount,
+                'payment_id': payment_id
+            }
+            generate_ticket_pdf(ticket_path, booking_id, booking_details)
+
+            with sqlite3.connect(DB_PATH) as con:
+                cur = con.cursor()
+                cur.execute('UPDATE bookings SET ticket_path = ? WHERE booking_id = ?', (ticket_path, booking_id))
+                con.commit()
+        except Exception as e:
+            print(f"Ticket generation error: {e}")
+
+        return jsonify({"success": True, "booking_id": booking_id})
+
+    except Exception as e:
+        app.logger.error(f"Error in /pay_later: {str(e)}")
+        return jsonify({"error": f"Internal Server Error: {str(e)}"}), 500
+
 
 @app.post('/verify_payment')
 def verify_payment():
@@ -265,6 +369,10 @@ def verify_payment():
             tickets_dir = os.path.join(app.instance_path, 'tickets')
             os.makedirs(tickets_dir, exist_ok=True)
             ticket_path = os.path.join(tickets_dir, f"{booking_id}.pdf")
+            
+            # Add payment_id to draft for ticket generation
+            draft['payment_id'] = payment_id
+            
             generate_ticket_pdf(ticket_path, booking_id, draft)
 
             # Update ticket path in database
@@ -449,19 +557,31 @@ def admin_delete_booking(booking_id):
     try:
         with sqlite3.connect(DB_PATH) as con:
             cur = con.cursor()
-            # Check if booking exists
-            cur.execute("SELECT id FROM bookings WHERE booking_id = ?", (booking_id,))
-            if not cur.fetchone():
+            # Check if booking exists and get ID path
+            cur.execute("SELECT id_path FROM bookings WHERE booking_id = ?", (booking_id,))
+            result = cur.fetchone()
+            if not result:
                 return jsonify({"error": "Booking not found"}), 404
+            
+            id_path = result[0]
             
             # Delete the booking
             cur.execute("DELETE FROM bookings WHERE booking_id = ?", (booking_id,))
             con.commit()
             
-            # Also delete the PDF ticket if it exists
+            # Delete the PDF ticket if it exists
             ticket_path = os.path.join(app.instance_path, 'tickets', f"{booking_id}.pdf")
             if os.path.exists(ticket_path):
                 os.remove(ticket_path)
+                
+            # Delete the ID proof file if it exists
+            if id_path:
+                full_id_path = os.path.join(app.config['UPLOAD_FOLDER'], id_path)
+                if os.path.exists(full_id_path):
+                    try:
+                        os.remove(full_id_path)
+                    except Exception as e:
+                        print(f"Error deleting ID proof file: {e}")
                 
         return jsonify({"success": True})
     except Exception as e:
@@ -526,15 +646,16 @@ def admin_view_id_proof(booking_id):
 # Catch-all route for React Router (must be last)
 @app.route('/<path:path>')
 def serve_react_app(path):
-    # Check if the path is for a static file
-    if path.startswith('assets/') or path.endswith(('.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico')):
-        try:
-            return send_from_directory('static/dist', path)
-        except:
-            abort(404)
+    # Absolute path to dist folder
+    dist_dir = os.path.join(app.root_path, 'static', 'dist')
+    requested_file = os.path.join(dist_dir, path)
+
+    # 1. If file exists on disk (e.g. assets/style.css or footer_logo.png), serve it
+    if os.path.exists(requested_file) and os.path.isfile(requested_file):
+        return send_from_directory(dist_dir, path)
     
-    # For all other paths, serve the React app
-    return send_from_directory('static/dist', 'index.html')
+    # 2. Otherwise, it's a frontend route (e.g. /contact), serve index.html
+    return send_from_directory(dist_dir, 'index.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

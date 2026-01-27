@@ -92,6 +92,14 @@ export default function BookingPage() {
     <div className="min-h-screen w-full bg-[#f9f9f4] text-[#111111] font-sans">
       {/* Booking */}
       <main className="mx-auto max-w-7xl px-3 sm:px-6 py-8 sm:py-10">
+        {/* Contact Banner */}
+        <div className="mb-8 rounded-xl bg-bhitarkanika-beige/30 p-4 border border-bhitarkanika-beige/50 text-center">
+          <p className="text-base sm:text-lg font-medium text-bhitarkanika-text flex items-center justify-center gap-2 flex-wrap">
+            <span>📞 For manual booking, contact</span>
+            <a href="tel:+919049303893" className="font-bold underline text-bhitarkanika-olive hover:text-bhitarkanika-green">+91 9049303893</a>
+            <span>or proceed with online booking below</span>
+          </p>
+        </div>
         {/* Heading + line */}
         <section className="mb-8 sm:mb-12">
           <div className="flex flex-col items-center text-center">

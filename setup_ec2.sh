@@ -9,7 +9,7 @@ set -e  # Exit on error
 APP_DIR="/home/ubuntu/SAS_Bhitarkanikatour"
 USER="ubuntu"
 VENV_DIR="$APP_DIR/venv"
-DOMAIN="your-domain.com" # CHANGE THIS
+DOMAIN="stayandsailbhitarkanika.in"
 
 echo "--- Starting EC2 Setup ---"
 

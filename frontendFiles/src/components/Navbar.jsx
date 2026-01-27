@@ -69,10 +69,10 @@ const Navbar = () => {
                 Home
               </Link>
               <button
-                onClick={() => handleSectionClick('about')}
+                onClick={() => handleSectionClick('tours')}
                 className="text-bhitarkanika-text hover:text-bhitarkanika-green px-3 py-2 text-sm font-lexend-giga font-medium transition-all duration-300 hover:bg-white/10 rounded-md hover:shadow-sm"
               >
-                About SAS
+                Boat Service
               </button>
               <Link
                 to="/room-service"
@@ -97,7 +97,7 @@ const Navbar = () => {
               className="bg-gradient-to-r from-bhitarkanika-dark to-gray-800 text-white px-4 sm:px-6 py-2 rounded-2xl text-xs sm:text-sm font-lexend-giga font-medium hover:from-gray-800 hover:to-bhitarkanika-dark transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-black/50 hover:scale-105 active:scale-95"
               onClick={() => window.scrollTo(0, 0)}
             >
-              BOOK NOW
+              BOOK BOAT
             </Link>
           </div>
 
@@ -132,10 +132,10 @@ const Navbar = () => {
                 Home
               </Link>
               <button
-                onClick={() => handleSectionClick('about')}
+                onClick={() => handleSectionClick('tours')}
                 className="text-bhitarkanika-text hover:text-bhitarkanika-green block px-3 py-2 text-sm sm:text-base font-lexend-giga font-medium transition-all duration-300 hover:bg-white/10 rounded-md hover:shadow-sm w-full text-left"
               >
-                About SAS
+                Boat Service
               </button>
               <Link
                 to="/room-service"
@@ -159,7 +159,7 @@ const Navbar = () => {
                   window.scrollTo(0, 0);
                 }}
               >
-                BOOK NOW
+                BOOK BOAT
               </Link>
             </div>
           </div>

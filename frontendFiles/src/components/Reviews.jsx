@@ -5,27 +5,27 @@ const Reviews = () => {
   const reviews = [
     {
       id: 1,
-      name: "Sarah Johnson",
-      location: "Mumbai, India",
+      name: "Mukti Prasad",
+      location: "Kendrapada, Odisha",
       rating: 5,
       comment: "Absolutely amazing experience! The boat tour was well-organized and our guide was incredibly knowledgeable about the wildlife. Saw crocodiles, birds, and the mangrove ecosystem up close. Highly recommended!",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+      image: "/Mukti_Prasad.jpg"
     },
     {
       id: 2,
-      name: "Rajesh Kumar",
-      location: "Delhi, India",
+      name: "Rakesh Kumar",
+      location: "Bhubaneswar, Odisha",
       rating: 5,
       comment: "Perfect family outing! The kids loved spotting the crocodiles and various bird species. The boat was comfortable and the staff was very friendly. Will definitely come back again.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
     },
     {
       id: 3,
-      name: "Emily Chen",
-      location: "Singapore",
+      name: "Pritam Sahu",
+      location: "Kolkata, West Bengal",
       rating: 5,
       comment: "Breathtaking views and incredible wildlife sightings! The sunset cruise was magical. The guide was excellent and shared fascinating facts about the ecosystem. A must-do experience!",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+      image: "/Talha_Ahmed.jpg"
     }
   ];
 
@@ -68,7 +68,7 @@ const Reviews = () => {
                   <p className="text-sm text-gray-600">{review.location}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <svg
@@ -81,7 +81,7 @@ const Reviews = () => {
                   </svg>
                 ))}
               </div>
-              
+
               <p className="text-gray-700 leading-relaxed italic">
                 "{review.comment}"
               </p>

@@ -129,6 +129,62 @@ export default function RegistrationPage() {
     }
   };
 
+  const handlePayLater = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!formData.fullName) return alert("Please enter your full name.");
+    if (!formData.phone) return alert("Please enter your phone number.");
+    if (!formData.email) return alert("Please enter your email address.");
+    if (!formData.address) return alert("Please enter your address.");
+    if (!formData.idProofType1) return alert("Please select your ID proof type.");
+    if (!formData.idProofFile) return alert("Please upload your ID proof.");
+
+    // Get booking data from sessionStorage
+    const bookingData = JSON.parse(sessionStorage.getItem('bookingData') || '{}');
+
+    // Prepare form data for submission
+    const submitData = new FormData();
+    submitData.append('name', formData.fullName);
+    submitData.append('phone', formData.phone);
+    submitData.append('email', formData.email);
+    submitData.append('address', formData.address);
+    submitData.append('id_type', formData.idProofType1);
+    submitData.append('id_file', formData.idProofFile);
+
+    // Add booking data
+    let dateStr = '';
+    if (bookingData.date) {
+      const d = new Date(bookingData.date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      dateStr = `${year}-${month}-${day}`;
+    }
+    submitData.append('date', dateStr);
+    submitData.append('time', bookingData.slot === "First Shift (7:00 am - 10:00 am)" ? "07:00" : "13:30");
+    submitData.append('route', bookingData.route || 'From Khola To Dangmal');
+    submitData.append('persons', bookingData.guests || 1);
+    submitData.append('children_under3', bookingData.children || 0);
+
+    try {
+      const response = await fetch('/pay_later', {
+        method: 'POST',
+        body: submitData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = `/success?booking_id=${data.booking_id}&payment_status=pay_later`;
+      } else {
+        alert(`Error: ${data.error || 'Booking failed'}`);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#f9f9f4] text-[#111111] font-sans">
       <main className="mx-auto max-w-4xl px-3 sm:px-6 py-8 sm:py-10">
@@ -326,8 +382,8 @@ export default function RegistrationPage() {
 
             <div
               className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragOver
-                  ? 'border-bhitarkanika-green bg-bhitarkanika-green/5'
-                  : 'border-gray-300 hover:border-bhitarkanika-green/50'
+                ? 'border-bhitarkanika-green bg-bhitarkanika-green/5'
+                : 'border-gray-300 hover:border-bhitarkanika-green/50'
                 }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -380,13 +436,23 @@ export default function RegistrationPage() {
               <ArrowLeft size={16} />
               BACK
             </button>
-            <button
-              type="submit"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#111111] px-6 py-3 text-sm font-semibold text-white hover:bg-black transition-colors"
-            >
-              COMPLETE REGISTRATION
-              <ArrowRight size={16} />
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={handlePayLater}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#111111] bg-white px-6 py-3 text-sm font-semibold text-[#111111] hover:bg-black/5 transition-colors"
+              >
+                PAY LATER
+                <ArrowRight size={16} />
+              </button>
+              <button
+                type="submit"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#111111] px-6 py-3 text-sm font-semibold text-white hover:bg-black transition-colors"
+              >
+                COMPLETE REGISTRATION
+                <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
         </form>
       </main>
