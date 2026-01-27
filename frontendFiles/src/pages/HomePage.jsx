@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import SEO from '../components/SEO';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import Hero from '../components/Hero';
@@ -29,6 +30,11 @@ const HomePage = () => {
 
   return (
     <div className="App">
+      <SEO
+        title="Home"
+        description="Experience the breathtaking beauty of Bhitarkanika with Stay and Sail. We offer exclusive boat tours, comfortable accommodations near the national park, and unforgettable wildlife encounters."
+        canonical="https://stayandsailbhitarkanika.in/"
+      />
       <Hero />
       <About />
       <BoatTours />

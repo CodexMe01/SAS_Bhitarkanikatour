@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import SEO from '../components/SEO';
 import BoatCard from '../components/BoatCard';
 import { InfoCard, ServiceCard } from '../components/InfoCard';
 import ImportantInfoSection from '../components/ImportantInfoSection';
@@ -42,6 +43,11 @@ const ServicesPage = () => {
 
   return (
     <div className="min-h-screen bg-bhitarkanika-gray">
+      <SEO
+        title="Our Services"
+        description="Explore our boat tour packages including the majestic Khola to Dangmal and Jayanagar to Dangmal routes. Affordable pricing for unforgettable Bhitarkanika adventures."
+        canonical="https://stayandsailbhitarkanika.in/services"
+      />
       {/* Hero Section */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 bg-bhitarkanika-off-white">
         <div className="max-w-7xl mx-auto">

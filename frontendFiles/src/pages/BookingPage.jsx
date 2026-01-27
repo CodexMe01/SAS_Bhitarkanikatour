@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import SEO from '../components/SEO';
 import {
   ArrowLeft,
   ArrowRight,
@@ -90,6 +91,11 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#f9f9f4] text-[#111111] font-sans">
+      <SEO
+        title="Book Your Tour"
+        description="Secure your Bhitarkanika boat tour online. Select your preferred date, time slot, and route. Hassle-free booking for Khola to Dangmal and other exciting routes."
+        canonical="https://stayandsailbhitarkanika.in/booking"
+      />
       {/* Booking */}
       <main className="mx-auto max-w-7xl px-3 sm:px-6 py-8 sm:py-10">
         {/* Contact Banner */}
