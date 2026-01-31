@@ -92,8 +92,9 @@ export default function BookingPage() {
   return (
     <div className="min-h-screen w-full bg-[#f9f9f4] text-[#111111] font-sans">
       <SEO
-        title="Book Your Tour"
-        description="Secure your Bhitarkanika boat tour online. Select your preferred date, time slot, and route. Hassle-free booking for Khola to Dangmal and other exciting routes."
+        title="Book Bhitarkanika Boat Tour - Khola to Dangmal | Stay and Sail"
+        description="Book your boat from Khola to Dangmal in Bhitarkanika National Park. Check boat price, availability, and book online for the best creek ride experience."
+        keywords="book bhitarkanika boat, khola to dangmal boat price, bhitarkanika boat booking online, khola gate boat service"
         canonical="https://stayandsailbhitarkanika.in/booking"
       />
       {/* Booking */}

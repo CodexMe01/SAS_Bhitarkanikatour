@@ -31,10 +31,37 @@ const HomePage = () => {
   return (
     <div className="App">
       <SEO
-        title="Home"
-        description="Experience the breathtaking beauty of Bhitarkanika with Stay and Sail. We offer exclusive boat tours, comfortable accommodations near the national park, and unforgettable wildlife encounters."
+        title="Bhitarkanika Boat Service & Tour Booking | Stay and Sail"
+        description="Official Bhitarkanika boat booking service. Book your Khola to Dangmal or Jayanagar to Dangmal boat tour online. Experience the mangrove wildlife with our premium boat service."
+        keywords="bhitarkanika boat booking, bhitarkanika boat service, bhitarkanika tour, bhitarkanika national park boat price, dangmal boat booking, khola gate boat, odisha tourism bhitarkanika"
         canonical="https://stayandsailbhitarkanika.in/"
       />
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "TravelAgency",
+          "name": "Stay and Sail Bhitarkanika",
+          "image": "https://stayandsailbhitarkanika.in/SABHlogo.png",
+          "description": "Premium boat tour agency in Bhitarkanika National Park offering online boat booking and guided tours.",
+          "url": "https://stayandsailbhitarkanika.in/",
+          "telephone": "+919178994463",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Bhitarkanika National Park",
+            "addressRegion": "Odisha",
+            "addressCountry": "IN"
+          },
+          "priceRange": "₹3500-₹4000",
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+              "opens": "06:00",
+              "closes": "18:00"
+            }
+          ]
+        })}
+      </script>
       <Hero />
       <About />
       <BoatTours />

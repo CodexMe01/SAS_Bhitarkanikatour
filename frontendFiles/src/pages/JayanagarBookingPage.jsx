@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import SEO from '../components/SEO';
 import {
   ArrowLeft,
   ArrowRight,
@@ -90,6 +91,12 @@ export default function JayanagarBookingPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#f9f9f4] text-[#111111] font-sans">
+      <SEO
+        title="Book Bhitarkanika Boat Tour - Jayanagar to Dangmal | Stay and Sail"
+        description="Book your boat from Jayanagar to Dangmal in Bhitarkanika National Park. Secure your slot for the best wildlife photography and sightseeing experience."
+        keywords="jayanagar to dangmal boat booking, bhitarkanika jayanagar gate, boat service jayanagar bhitarkanika, odisha wildlife tour"
+        canonical="https://stayandsailbhitarkanika.in/jayanagar-booking"
+      />
       {/* Booking */}
       <main className="mx-auto max-w-7xl px-3 sm:px-6 py-8 sm:py-10">
         {/* Contact Banner */}
