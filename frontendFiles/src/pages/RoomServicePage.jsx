@@ -17,10 +17,10 @@ const RoomServicePage = () => {
                         For room inquiry, please contact:
                     </p>
                     <a
-                        href="tel:+919049303893"
+                        href="tel:+919178994463"
                         className="block text-2xl sm:text-3xl font-bold text-bhitarkanika-green hover:text-bhitarkanika-dark transition-colors"
                     >
-                        9049303893
+                        9178994463
                     </a>
                 </div>
             </div>

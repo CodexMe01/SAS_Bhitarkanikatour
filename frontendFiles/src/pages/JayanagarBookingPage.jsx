@@ -28,7 +28,7 @@ const todayYMD = formatYMD(todayMidnight);
 export default function JayanagarBookingPage() {
   const [viewDate, setViewDate] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState(() => new Date());
-  const [slot, setSlot] = useState("second");
+  const [slot, setSlot] = useState(null);
   const [guests, setGuests] = useState({ total: "", children: "" });
   const [showCapacityWarning, setShowCapacityWarning] = useState(false);
 
@@ -96,7 +96,9 @@ export default function JayanagarBookingPage() {
         <div className="mb-8 rounded-xl bg-bhitarkanika-beige/30 p-4 border border-bhitarkanika-beige/50 text-center">
           <p className="text-base sm:text-lg font-medium text-bhitarkanika-text flex items-center justify-center gap-2 flex-wrap">
             <span>📞 For manual booking, contact</span>
-            <a href="tel:+919049303893" className="font-bold underline text-bhitarkanika-olive hover:text-bhitarkanika-green">+91 9049303893</a>
+            <a href="tel:+919178994463" className="font-bold underline text-bhitarkanika-olive hover:text-bhitarkanika-green">+91 9178994463</a>
+            <span className="mx-1">/</span>
+            <a href="tel:+917735624663" className="font-bold underline text-bhitarkanika-olive hover:text-bhitarkanika-green">+91 7735624663</a>
             <span>or proceed with online booking below</span>
           </p>
         </div>

@@ -116,10 +116,10 @@ const Footer = () => {
                     </svg>
                   </div>
                   <a
-                    href="tel:+919049303893"
+                    href="tel:+919178994463"
                     className="text-gray-300 hover:text-white transition-colors cursor-pointer"
                   >
-                    +91 9049303893
+                    +91 9178994463
                   </a>
                 </li>
                 <li className="flex items-start space-x-2">

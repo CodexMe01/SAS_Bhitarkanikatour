@@ -31,10 +31,10 @@ const Hero = () => {
             </a>
             <span className="hidden sm:inline font-amaranth opacity-60">|</span>
             <a
-              href="tel:+919049303893"
+              href="tel:+919178994463"
               className="font-amaranth hover:text-bhitarkanika-light-green transition-colors cursor-pointer"
             >
-              Contact: 9049303893
+              Contact: 9178994463
             </a>
           </div>
         </div>

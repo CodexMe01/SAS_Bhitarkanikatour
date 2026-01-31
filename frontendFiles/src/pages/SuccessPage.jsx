@@ -189,7 +189,7 @@ const SuccessPage = () => {
               You will receive a confirmation email shortly. Please arrive at the departure point 15 minutes before your scheduled time.
             </p>
             <p className="text-xs text-gray-500">
-              For any queries, please contact us at +91-9049303893
+              For any queries, please contact us at +91-9178994463
             </p>
           </div>
         </section>
